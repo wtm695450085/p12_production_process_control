@@ -1,8 +1,11 @@
 import { create } from "zustand";
 import { operators, productionOrders } from "@/lib/seed-data";
 import type { WorkMode } from "@/lib/types";
+import type { ModuleId } from "@/lib/types";
+import type { Lang } from "@/lib/i18n";
 
 export type ScreenId = 1 | 2 | 3 | 4 | 5;
+export type AppModuleId = 0 | ModuleId | 10;
 
 interface ColorCount {
   good: number;
@@ -54,6 +57,37 @@ const initialProgress: Record<string, ProgressState> = {
 interface DemoState {
   currentScreen: ScreenId;
   setScreen: (screen: ScreenId) => void;
+  currentModule: AppModuleId;
+  setModule: (module: AppModuleId) => void;
+  activeUserId: string;
+  setActiveUser: (userId: string) => void;
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  moduleTabs: Partial<Record<ModuleId, string>>;
+  setModuleTab: (module: ModuleId, tab: string) => void;
+  /**
+   * Rekord wybrany na liście danego modułu (forma, karta technologiczna,
+   * karta logistyczna, zlecenie). Trzymany w store, żeby raport właścicielski
+   * mógł otworzyć dokładnie ten dokument, z którego pochodzi liczba.
+   */
+  recordFocus: Partial<Record<ModuleId, string>>;
+  setRecordFocus: (module: ModuleId, recordId: string) => void;
+  mapFocus: ModuleId | null;
+  setMapFocus: (module: ModuleId | null) => void;
+  inboxCounts: Partial<Record<ModuleId, number>>;
+  inboxMessages: Partial<Record<ModuleId, string[]>>;
+  acknowledgeInbox: (module: ModuleId) => void;
+  routeConfirmation: { documentNumber: string; targets: ModuleId[] } | null;
+  closeRouteConfirmation: () => void;
+  p105CalculationStale: boolean;
+  purchasePriceApplied: boolean;
+  moldF001InService: boolean;
+  technologyNotes: string[];
+  planSetupHours: number;
+  materialConsumedKg: number;
+  submitLeadShiftReport: () => void;
+  finalizeCostSettlement: () => void;
+  applyPurchaseInvoice: () => void;
 
   selectedProductId: string;
   setSelectedProduct: (id: string) => void;
@@ -92,6 +126,26 @@ function buildInitialShiftForms(): Record<string, ShiftForm> {
 
 const initialState = {
   currentScreen: 1 as ScreenId,
+  currentModule: 0 as AppModuleId,
+  activeUserId: "admin",
+  lang: "pl" as Lang,
+  moduleTabs: {
+    1: "kartoteka", 2: "zamowienia", 3: "operator", 4: "tydzien", 5: "formy",
+    // Moduł 9 otwiera się na raporcie właścicielskim — dla ról bez uprawnień
+    // `resolveModuleTab` cofa to na Pulpit, więc nikt nie utknie na ukrytym widoku.
+    6: "karty", 7: "karty", 8: "stany", 9: "wlascicielski",
+  } as Partial<Record<ModuleId, string>>,
+  recordFocus: {} as Partial<Record<ModuleId, string>>,
+  mapFocus: null as ModuleId | null,
+  inboxCounts: {} as Partial<Record<ModuleId, number>>,
+  inboxMessages: {} as Partial<Record<ModuleId, string[]>>,
+  routeConfirmation: null as { documentNumber: string; targets: ModuleId[] } | null,
+  p105CalculationStale: false,
+  purchasePriceApplied: false,
+  moldF001InService: false,
+  technologyNotes: [] as string[],
+  planSetupHours: 3,
+  materialConsumedKg: 0,
   selectedProductId: "P-101",
   plasticPriceChangePct: 0,
   applyToAllProducts: false,
@@ -107,8 +161,19 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   ...initialState,
 
   setScreen: (screen) => set({ currentScreen: screen }),
+  setModule: (currentModule) => set({ currentModule }),
+  setActiveUser: (activeUserId) => set({ activeUserId }),
+  setLang: (lang) => set({ lang }),
+  setModuleTab: (module, tab) => set((s) => ({ moduleTabs: { ...s.moduleTabs, [module]: tab } })),
+  setRecordFocus: (module, recordId) => set((s) => ({ recordFocus: { ...s.recordFocus, [module]: recordId } })),
+  setMapFocus: (mapFocus) => set({ mapFocus }),
+  acknowledgeInbox: (module) => set((s) => ({
+    inboxCounts: { ...s.inboxCounts, [module]: 0 },
+    inboxMessages: { ...s.inboxMessages, [module]: [] },
+  })),
+  closeRouteConfirmation: () => set({ routeConfirmation: null }),
 
-  setSelectedProduct: (id) => set({ selectedProductId: id, currentScreen: 2 }),
+  setSelectedProduct: (id) => set((s) => ({ selectedProductId: id, currentScreen: 2, currentModule: 1, moduleTabs: { ...s.moduleTabs, 1: "kalkulacja" } })),
 
   setPlasticPriceChangePct: (pct) => set({ plasticPriceChangePct: pct }),
   setApplyToAllProducts: (v) => set({ applyToAllProducts: v }),
@@ -184,11 +249,65 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       };
     }),
 
+  submitLeadShiftReport: () =>
+    set((s) => {
+      const targets: ModuleId[] = [3, 4, 5, 6, 8];
+      const inboxCounts = { ...s.inboxCounts };
+      const inboxMessages = { ...s.inboxMessages };
+      const effects: Partial<Record<ModuleId, string>> = {
+        3: "RZ/2026/0431 przeliczył koszt rzeczywisty zlecenia.",
+        4: "Plan przyjął rzeczywiste przezbrojenie 4,5 h i skorygował termin.",
+        5: "Licznik F-001 został zaktualizowany; forma otrzymała status SERWIS.",
+        6: "Do KT/P-105/W4 dopisano uwagę o cyklu 39 s i wypychaczu.",
+        8: "Ze stanu zdjęto materiał zużyty w produkcji.",
+      };
+      for (const id of targets) {
+        inboxCounts[id] = (inboxCounts[id] ?? 0) + 1;
+        inboxMessages[id] = [...(inboxMessages[id] ?? []), effects[id]!];
+      }
+      return {
+        inboxCounts,
+        inboxMessages,
+        routeConfirmation: { documentNumber: "RZ/2026/0431", targets },
+        moldF001InService: true,
+        technologyNotes: [...s.technologyNotes, "RZ/2026/0431: cykl 39 s; zacinanie wypychacza gniazda 2."],
+        planSetupHours: 4.5,
+        materialConsumedKg: 112.6,
+      };
+    }),
+
+  finalizeCostSettlement: () =>
+    set((s) => ({
+      p105CalculationStale: true,
+      routeConfirmation: { documentNumber: "RKR/2026/0218", targets: [1, 9] },
+      inboxCounts: { ...s.inboxCounts, 1: (s.inboxCounts[1] ?? 0) + 1, 9: (s.inboxCounts[9] ?? 0) + 1 },
+      inboxMessages: {
+        ...s.inboxMessages,
+        1: [...(s.inboxMessages[1] ?? []), "RKR/2026/0218 oznaczyło kalkulację P-105 jako NIEAKTUALNĄ."],
+        9: [...(s.inboxMessages[9] ?? []), "RKR/2026/0218 zasiliło analizę straty ZP/2026/218."],
+      },
+    })),
+
+  applyPurchaseInvoice: () =>
+    set((s) => ({
+      purchasePriceApplied: true,
+      p105CalculationStale: true,
+      routeConfirmation: { documentNumber: "FZ/2026/0619", targets: [1, 9] },
+      inboxCounts: { ...s.inboxCounts, 1: (s.inboxCounts[1] ?? 0) + 1, 9: (s.inboxCounts[9] ?? 0) + 1 },
+      inboxMessages: {
+        ...s.inboxMessages,
+        1: [...(s.inboxMessages[1] ?? []), "FZ/2026/0619 zmieniła cenę TPE-S 4055 z 18,00 na 19,40 zł/kg."],
+        9: [...(s.inboxMessages[9] ?? []), "Analityka przyjęła nową cenę zakupową TPE-S 4055."],
+      },
+    })),
+
+  // Język przetrwa reset — prezentacja po angielsku nie wraca nagle do polskiego.
   resetDemo: () =>
-    set({
+    set((s) => ({
       ...initialState,
+      lang: s.lang,
       shiftForms: buildInitialShiftForms(),
       productionProgress: { ...initialProgress },
       suggestedPriceRevealed: {},
-    }),
+    })),
 }));

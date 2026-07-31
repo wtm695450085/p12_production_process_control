@@ -1,23 +1,17 @@
 "use client";
-
 import { useEffect } from "react";
-import { useDemoStore } from "@/store/useDemoStore";
-
+import { useDemoStore, type AppModuleId } from "@/store/useDemoStore";
 export function KeyboardShortcuts() {
-  const setScreen = useDemoStore((s) => s.setScreen);
-
+  const setModule = useDemoStore((s) => s.setModule);
   useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement | null;
-      const tag = target?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable) return;
-      if (["1", "2", "3", "4", "5"].includes(e.key)) {
-        setScreen(Number(e.key) as 1 | 2 | 3 | 4 | 5);
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [setScreen]);
-
+    const fn = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(el?.tagName ?? "") || el?.isContentEditable) return;
+      if (/^[0-9]$/.test(e.key)) setModule(Number(e.key) as AppModuleId);
+      if (e.key.toLowerCase() === "m") setModule(0);
+      if (e.key.toLowerCase() === "a") setModule(10);
+    };
+    window.addEventListener("keydown", fn); return () => window.removeEventListener("keydown", fn);
+  }, [setModule]);
   return null;
 }

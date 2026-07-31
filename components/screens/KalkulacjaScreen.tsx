@@ -2,6 +2,7 @@
 
 import { useDemoStore } from "@/store/useDemoStore";
 import { products } from "@/lib/seed-data";
+import { useT } from "@/lib/use-t";
 import {
   computeProductEconomics,
   applyPlasticPriceChange,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/calculations";
 
 export function KalkulacjaScreen() {
+  const t = useT();
   const selectedProductId = useDemoStore((s) => s.selectedProductId);
   const setSelectedProduct = useDemoStore((s) => s.setSelectedProduct);
   const pct = useDemoStore((s) => s.plasticPriceChangePct);
@@ -71,7 +73,7 @@ export function KalkulacjaScreen() {
           <SectionTitle>Dane techniczne</SectionTitle>
           <FieldRow label="Waga netto" value={`${formatNumber(product.weightNetG, 1)} g`} />
           <FieldRow label="Waga brutto" value={`${formatNumber(product.weightGrossG, 1)} g`} />
-          <FieldRow label="Krotność formy" value={`${product.cavities}`} />
+          <FieldRow label={t("Krotność formy")} value={`${product.cavities}`} />
           <FieldRow label="Czas cyklu" value={`${product.cycleTimeS} s`} />
           <FieldRow label="Wtryskarka" value={`${machine.name}`} />
           <FieldRow label="Stawka maszyny" value={formatCurrency(machine.rateZlH, 2) + "/h"} />
@@ -106,7 +108,7 @@ export function KalkulacjaScreen() {
           </div>
 
           <div className="border-t border-(--color-border) pt-2">
-            <FieldRow label="Brakowość zakładana" value={formatPercent(product.scrapRatePct)} />
+            <FieldRow label={t("Brakowość zakładana")} value={formatPercent(product.scrapRatePct)} />
           </div>
         </div>
 
@@ -153,14 +155,14 @@ export function KalkulacjaScreen() {
                 }}
                 className="h-3.5 w-3.5 accent-[#1F3864]"
               />
-              Zastosuj do wszystkich produktów
+              {t("Zastosuj do wszystkich produktów")}
             </label>
           </div>
 
           <div className="border-t border-(--color-border) pt-3">
             <SectionTitle>Rozbicie kosztu jednostkowego</SectionTitle>
             <div className="mt-2 flex h-7 w-full overflow-hidden rounded-sm border border-(--color-border-strong)">
-              <div style={{ width: `${materialPct}%`, background: "var(--color-navy)" }} title="materiał" />
+              <div style={{ width: `${materialPct}%`, background: "var(--color-navy)" }} title={t("materiał")} />
               <div style={{ width: `${colorantPct}%`, background: "var(--color-steel)" }} title="barwnik" />
               <div style={{ width: `${machinePct}%`, background: "#7A9EC2" }} title="maszyna" />
               <div
@@ -172,7 +174,7 @@ export function KalkulacjaScreen() {
               />
             </div>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-(--color-ink-soft)">
-              <Legend swatch="var(--color-navy)" label="materiał" />
+              <Legend swatch="var(--color-navy)" label={t("materiał")} />
               <Legend swatch="var(--color-steel)" label="barwnik" />
               <Legend swatch="#7A9EC2" label="maszyna" />
               <Legend swatch="var(--color-status-amber)" label="narzut na braki" hatched />
@@ -180,10 +182,10 @@ export function KalkulacjaScreen() {
 
             <table className="mt-3 w-full text-[12.5px]">
               <tbody>
-                <CostRow label="Materiał" value={direct.materialCost} />
+                <CostRow label={t("Materiał")} value={direct.materialCost} />
                 <CostRow label="Barwnik" value={direct.colorantCost} />
                 <CostRow label="Maszyna" value={direct.machineCost} />
-                <CostRow label="Razem koszt bezpośredni" value={direct.total} bold />
+                <CostRow label={t("Razem koszt bezpośredni")} value={direct.total} bold />
                 <CostRow label="Narzut na braki" value={scrapAddon} />
                 <CostRow label="Koszt jednostkowy" value={econ.unitCost} bold accent />
               </tbody>
@@ -195,25 +197,25 @@ export function KalkulacjaScreen() {
         <div className="flex flex-col gap-3 rounded-sm border border-(--color-border) bg-(--color-card) p-4">
           <SectionTitle>Wynik</SectionTitle>
           <ResultRow label="Koszt jednostkowy" value={formatCurrency(econ.unitCost, 4)} />
-          <ResultRow label="Cena sprzedaży" value={formatCurrency(product.priceZl, 4)} />
+          <ResultRow label={t("Cena sprzedaży")} value={formatCurrency(product.priceZl, 4)} />
           <ResultRow
-            label="Marża jednostkowa"
+            label={t("Marża jednostkowa")}
             value={formatCurrency(econ.margin, 4)}
             danger={econ.margin < 0}
           />
           <ResultRow label="Narzut %" value={formatPercent(econ.markupPct)} danger={econ.markupPct < 0} />
-          <ResultRow label="Wydajność" value={`${formatNumber(econ.hourlyOutput, 1)} /h`} />
+          <ResultRow label={t("Wydajność")} value={`${formatNumber(econ.hourlyOutput, 1)} /h`} />
 
           <div className="mt-2 rounded-sm border-2 p-4" style={{ borderColor: "var(--color-navy)" }}>
             <div className="text-[11.5px] font-semibold uppercase tracking-wide text-(--color-ink-faint)">
-              Marża na maszynogodzinę
+              {t("Marża na maszynogodzinę")}
             </div>
             <div
               className="tabular mt-1 text-[36px] font-bold leading-none"
               style={{ color: econ.marginPerMachineHour < 0 ? "var(--color-status-red)" : "var(--color-navy)" }}
             >
               {formatNumber(econ.marginPerMachineHour, 1)}
-              <span className="ml-1 text-[16px] font-medium text-(--color-ink-faint)">zł/h</span>
+              <span className="ml-1 text-[16px] font-medium text-(--color-ink-faint)">{t("zł/h")}</span>
             </div>
             {pct !== 0 && (
               <div className="tabular mt-1 text-[11.5px] text-(--color-ink-faint)">
@@ -241,6 +243,7 @@ function FieldRow({ label, value }: { label: string; value: string }) {
 }
 
 function Legend({ swatch, label, hatched }: { swatch: string; label: string; hatched?: boolean }) {
+  const t = useT();
   return (
     <span className="flex items-center gap-1.5">
       <span
@@ -251,7 +254,7 @@ function Legend({ swatch, label, hatched }: { swatch: string; label: string; hat
             : swatch,
         }}
       />
-      {label}
+      {t(label)}
     </span>
   );
 }

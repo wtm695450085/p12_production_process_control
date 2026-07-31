@@ -1,110 +1,89 @@
-# SCENARIUSZ PREZENTACJI (cel: 4 minuty)
+# Scenariusz prezentacji P12 — 9 modułów (8–10 minut)
 
-Skróty klawiszowe `1`–`5` przełączają ekrany bez szukania myszą — trzymaj rękę
-na klawiaturze przez całą rozmowę. Przed startem kliknij **Reset demo**
-(prawy górny róg), żeby mieć pewność, że zaczynasz od stanu początkowego.
+Przed prezentacją kliknij **Reset demo**. Klawisze `0`–`9` otwierają moduły, a `M` otwiera Mapę systemu.
 
----
+## 0. Mapa systemu — 45 s
 
-## 1. Produkty (klawisz `1`) — 30 s
+„Każda strzałka to dokument przechodzący między działami. Dziś te dokumenty idą na papierze i w Excelu. Najważniejsza jest czerwona pętla: dane z hali wracają do kalkulacji.”
 
-*"To jest Państwa portfolio — sześć produktów, dokładnie tak jak w Państwa
-arkuszu: cena, koszt, narzut procentowy. Kolorowa kropka po lewej pokazuje,
-które zlecenia produkcyjne odbiegły od kalkulacji."*
+Kliknij moduł 1.
 
-Wskaż wiersz **P-105 Rączka RAIS 2** — czerwona kropka.
+## 1. Kartoteka i kalkulacja — 60 s
 
-*"Ten produkt ma za sobą zakończone zlecenie, które wyszło na minus. Zaraz
-zobaczymy dlaczego."*
+Otwórz P-105 i podwidok **Kalkulacja**.
 
-Kliknij wiersz P-105 → przejście do Ekranu 2.
+„Koszt kalkulacyjny to 0,8406 zł, cena klienta 1,1500 zł, narzut 36,8%. Na tym etapie wszystko wygląda rentownie.”
 
----
+Pokaż klienta, recepturę, F-001, KT/P-105/W4 v3 i KL/P-105.
 
-## 2. Kalkulacja (klawisz `2`) — 90 s
+## 2. Zlecenia — 50 s
 
-*"To jest karta kalkulacyjna — dokładnie te same liczby, które Państwo liczą
-w Excelu, tylko rozbite na składowe: materiał, barwnik, praca maszyny."*
+Pokaż ZK/2026/077, następnie ZP/2026/218.
 
-Wskaż pasek rozbicia kosztu.
+„Jedno zamówienie klienta tworzy zlecenie i zapotrzebowanie. Pięć kolorów po tysiąc sztuk nie jest już przepisywanych między arkuszami.”
 
-*"Proszę zwrócić uwagę: przy tym produkcie maszyna to ponad połowa kosztu —
-nie materiał. To ważne, bo za chwilę to się przełoży na wynik."*
+## 8. Magazyn — 50 s
 
-Przesuń suwak **"Zmiana cen tworzyw"** do ok. +30%.
+Pokaż **Rezerwacje**, a potem **Faktury zakupu**. Na razie nie zatwierdzaj FZ.
 
-*"A teraz — co się dzieje, jeśli cena granulatu wzrośnie o 30%? Wszystko
-przelicza się natychmiast, na żywo. Pasek statusu robi się czerwony:
-kalkulacja wymaga renegocjacji ceny z klientem."*
+„System już wie, czego zabraknie. Faktura z ceną 19,40 zł/kg za chwilę wróci do kalkulacji.”
 
-Zaznacz **"Zastosuj do wszystkich produktów"** (przenosi na Ekran 1).
+## 4. Plan — 45 s
 
-*"To samo dla całego portfolio naraz — od razu widać, ile pozycji przestaje
-się spinać."*
+„Zlecenie leży na W4, a przezbrojenie planowano na 3 godziny. Plan zna formę i kompletność materiału.”
 
-Wróć suwakiem do 0% / odznacz toggle (albo kliknij Reset demo), wróć na
-Ekran 2 do P-105.
+## 5, 6, 7. Dokumentacja produkcji — 90 s
 
----
+- Moduł 5: F-001, licznik 412 000.
+- Moduł 6: KT/P-105/W4 wersja 3, cykl 32 s.
+- Moduł 7: 500 sztuk w kartonie, paleta zgodna z limitem.
 
-## 3. Rozliczenie produkcji (klawisz `4`) — 90 s — **kluczowy moment**
+„Operator nie musi szukać trzech różnych arkuszy. Zlecenie wskazuje właściwe wersje dokumentów.”
 
-*"To jest najważniejszy ekran. Zlecenie ZP/2026/218, ten sam produkt —
-Rączka RAIS 2. Po lewej: co zakładała kalkulacja. Po prawej: ile faktycznie
-kosztowała produkcja, kiedy zlecenie się zakończyło."*
+## 3. Raport zmianowy — 2 min
 
-Wskaż trzy kafle.
+Pokaż RZ/2026/0431:
 
-*"0,84 zł kalkulacji, 1,18 zł kosztu rzeczywistego, a Państwo sprzedają ten
-produkt za 1,15 zł. **Sprzedają Państwo poniżej kosztu wytworzenia.**"*
+- cykl 39 s;
+- przezbrojenie 4,5 h;
+- rosnącą brakowość;
+- zacinanie wypychacza.
 
-Przejdź do wykresu wodospadowego.
+Kliknij **Złóż raport i przekaż do 5 modułów**. Pozwól pojawić się wszystkim pozycjom panelu „DOKUMENT PRZEKAZANY”.
 
-*"I tu widać dlaczego: droższy granulat, dłuższy cykl niż zakładany, wyższa
-brakowość — aż 14% zamiast 3% — i nieujęty w kalkulacji koszt przezbrojenia.
-Każda z tych rzeczy osobno wygląda jak drobiazg. Razem: 40% odchylenia."*
+Otwórz kolejno:
 
-Zjedź do dolnej sekcji, wskaż duże liczby.
+- moduł 4 — przezbrojenie 4,5 h i zagrożenie;
+- moduł 5 — SERWIS i nowy licznik;
+- moduł 6 — uwaga z RZ;
+- moduł 8 — rozchód materiału.
 
-*"Na tym jednym zleceniu strata to 133 złote. Niewiele. Ale gdyby ten
-produkt szedł w produkcję w tej samej konfiguracji 12 razy w roku —
-planowali Państwo zarobić 17,5 tysiąca złotych. W rzeczywistości: stratę
-1,6 tysiąca. Różnica: **19 128 złotych — na jednym tylko produkcie.**"*
+„Jedno zatwierdzenie operatorki zaktualizowało pięć miejsc. Każdą liczbę można otworzyć do dokumentu źródłowego.”
 
-Pauza. Pozwól tej liczbie osiąść.
+Wróć do modułu 3, podwidok **Koszt rzeczywisty**.
 
----
+„Koszt wzrósł do 1,1783 zł. Cena klienta to 1,1500 zł. Firma traci 0,0283 zł na sztuce; odchylenie wynosi 40,2%.”
 
-## 4. Rentowność portfela (klawisz `5`) — 60 s
+Kliknij **Zatwierdź RKR i zamknij pętlę kosztową**.
 
-*"Teraz najważniejsze pytanie: czy Państwa ranking produktów w ogóle jest
-poprawny? Po lewej — ranking według narzutu procentowego, tak jak Państwo
-dziś liczą rentowność. Po prawej — dokładnie te same produkty, ale
-posortowane według marży wypracowanej na godzinę pracy maszyny."*
+## 1. Zamknięcie pętli — 50 s
 
-Wskaż linie łączące P-104 i P-101.
+Wróć do modułu 1.
 
-*"Klips do smyczy — w rankingu procentowym ostatni. Najgorszy produkt w
-portfolio, prawda? A jednak pod względem zysku z godziny pracy maszyny —
-drugi najlepszy. Miska 900 ml — odwrotnie: drugie miejsce po marży
-procentowej, ale piąte, gdy policzyć realny zysk z ograniczonego czasu
-maszyn."*
+„Kalkulacja nie jest już zielonym arkuszem zapomnianym na dysku. Dostała status NIEAKTUALNA i sugerowaną cenę 1,6119 zł.”
 
-*"Przy ograniczonym czasie maszyn to druga miara decyduje o wyniku firmy —
-nie procent, tylko złotówki na godzinę."*
+## 8. Faktura zakupu — 40 s
 
----
+Otwórz FZ/2026/0619 i kliknij **Zatwierdź cenę i przekaż do modułów 1 i 9**.
 
-## (opcjonalnie, jeśli zostaje czas) Raport zmianowy (klawisz `3`)
+„Podwyżka ceny materiału też wraca automatycznie. Nie czeka na ręczną aktualizację Excela.”
 
-*"A to jest widok, który zobaczy operator na hali — duże przyciski, żeby
-dało się obsłużyć w rękawicach. Stąd biorą się dane, które przed chwilą
-widzieliśmy w rozliczeniu."*
+## 9. Analityka — 60 s
 
-Pokaż zatwierdzenie raportu i aktualizację licznika postępu po prawej.
+Pokaż pulpit, odchylenia i **Rentowność portfela**.
 
----
+„Wynik można oglądać przez produkt, klienta i maszynę. Ranking narzutu nie jest tym samym co zysk z ograniczonej maszynogodziny.”
 
-**Zamknięcie:** *"To wszystko dzieje się dziś w Excelu, ręcznie, raz w
-miesiącu, po fakcie. System policzyłby to na bieżąco, dla każdego zlecenia,
-automatycznie."*
+## Zakończenie
+
+„Problemem nie jest to, że firma nie umie liczyć. Problemem jest jednokierunkowy obieg informacji. P12 zamyka pętlę: dokument z hali wraca do kosztu, ceny i decyzji.”

@@ -1,0 +1,22 @@
+"use client";
+import { Eye, LockKeyhole, Pencil, ShieldCheck, UserCheck } from "lucide-react";
+import { UserAvatar } from "./UserAvatar";
+import { moduleConfigs } from "@/lib/module-config";
+import { systemUsers } from "@/lib/access-control";
+import { useDemoStore } from "@/store/useDemoStore";
+import type { AccessLevel, ModuleId } from "@/lib/types";
+import { useT } from "@/lib/use-t";
+
+const levelLabel: Record<AccessLevel,string>={none:"BRAK",view:"WGLĄD",edit:"EDYCJA",admin:"ADMIN"};
+const levelStyle: Record<AccessLevel,string>={none:"bg-gray-100 text-gray-500",view:"bg-(--color-steel-light) text-(--color-steel)",edit:"bg-(--color-status-green-bg) text-(--color-status-green)",admin:"bg-(--color-navy) text-white"};
+
+export function AccessManagement() {
+  const t=useT();
+  const activeUserId=useDemoStore(s=>s.activeUserId); const setActiveUser=useDemoStore(s=>s.setActiveUser);
+  return <div className="p-6"><div className="mb-5 flex items-start justify-between"><div><h1 className="flex items-center gap-2 text-[20px] font-bold text-(--color-navy)"><ShieldCheck size={23}/> {t("ZARZĄDZANIE DOSTĘPEM")}</h1><p className="mt-1 max-w-3xl text-[12.5px] text-(--color-ink-soft)">{t("Każda osoba ma imienne konto, rolę oraz oddzielne prawa do wglądu i edycji. Wybierz użytkownika, aby zobaczyć aplikację dokładnie tak, jak widzi ją ta osoba.")}</p></div><div className="border border-(--color-status-amber) bg-[#fff7d6] px-3 py-2 text-[10.5px] text-(--color-ink-soft)"><b>{t("TRYB DEMO:")}</b> {t("symulacja uprawnień bez produkcyjnego logowania")}</div></div>
+    <div className="mb-5 grid grid-cols-7 gap-2">{systemUsers.map(user=><button key={user.id} onClick={()=>setActiveUser(user.id)} className={`border p-3 text-left ${activeUserId===user.id?"border-(--color-steel) bg-(--color-steel-light)":"border-(--color-border) bg-white"}`}><div className="flex items-start justify-between"><UserAvatar user={user} size={48}/>{activeUserId===user.id&&<UserCheck size={16} className="text-(--color-status-green)"/>}</div><div className="mt-2 text-[11px] font-bold">{user.name}</div><div className="mt-0.5 text-[9.5px] text-(--color-ink-faint)">{t(user.jobTitle)}</div><div className="mt-2 text-[9px] font-bold uppercase text-(--color-steel)">{t("Wciel się")}</div></button>)}</div>
+    <div className="overflow-hidden border border-(--color-border) bg-white"><table className="w-full text-[11px]"><thead className="bg-(--color-bg)"><tr><th className="p-3 text-left">{t("Użytkownik i rola")}</th>{([1,2,3,4,5,6,7,8,9] as ModuleId[]).map(id=><th key={id} className="w-[8%] p-2 text-center"><div className="font-mono text-(--color-navy)">{id}</div><div className="text-[8.5px] font-medium text-(--color-ink-faint)">{t(moduleConfigs[id].shortName)}</div></th>)}<th className="p-2 text-left">{t("Edytowane dokumenty")}</th></tr></thead><tbody>{systemUsers.map(user=><tr key={user.id} className={`border-t ${activeUserId===user.id?"bg-[#f4f8fc]":""}`}><td className="p-3"><div className="flex items-center gap-2.5"><UserAvatar user={user} size={30}/><div><b>{user.name}</b><div className="text-[9.5px] text-(--color-ink-faint)">{t(user.roleName)}</div></div></div></td>{([1,2,3,4,5,6,7,8,9] as ModuleId[]).map(id=>{const level=user.permissions[id];return <td key={id} className="p-1 text-center"><span title={`${t(moduleConfigs[id].name)}: ${t(levelLabel[level])}`} className={`inline-flex min-w-12 items-center justify-center gap-1 rounded-sm px-1.5 py-1 text-[8.5px] font-bold ${levelStyle[level]}`}>{level==="none"?<LockKeyhole size={9}/>:level==="view"?<Eye size={9}/>:<Pencil size={9}/>} {t(levelLabel[level])}</span></td>})}<td className="max-w-[190px] p-2 font-mono text-[9px] text-(--color-ink-soft)">{user.editableDocuments.join(" · ")||"—"}</td></tr>)}</tbody></table></div>
+    <div className="mt-4 grid grid-cols-3 gap-3"><Legend icon={<LockKeyhole size={15}/>} title={t("BRAK")} text={t("Moduł jest zablokowany i nie ujawnia danych.")}/><Legend icon={<Eye size={15}/>} title={t("WGLĄD")} text={t("Dokumenty są widoczne, ale wszystkie akcje edycji są zablokowane.")}/><Legend icon={<Pencil size={15}/>} title={t("EDYCJA")} text={t("Użytkownik może zmieniać tylko dokumenty przypisane do jego roli.")}/></div>
+  </div>;
+}
+function Legend({icon,title,text}:{icon:React.ReactNode;title:string;text:string}){return <div className="flex gap-3 border border-(--color-border) bg-white p-3 text-[11px]"><span className="text-(--color-navy)">{icon}</span><div><b>{title}</b><div className="mt-0.5 text-(--color-ink-soft)">{text}</div></div></div>}

@@ -7,28 +7,29 @@
     "build": "next build",
     "start": "next start -p 8507",
     "lint": "next lint",
-    "verify": "tsx scripts/verify-calculations.ts"
+    "verify": "node --import tsx scripts/verify-calculations.ts"
   },
   "dependencies": {
+    "lucide-react": "0.474.0",
     "next": "15.5.21",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zustand": "5.0.3",
     "recharts": "2.15.1",
-    "lucide-react": "0.474.0",
-    "serve": "14.2.6"
+    "serve": "14.2.6",
+    "xlsx": "^0.18.5",
+    "zustand": "5.0.3"
   },
   "devDependencies": {
-    "typescript": "5.7.3",
+    "@eslint/eslintrc": "3.2.0",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.10.10",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
-    "tailwindcss": "4.3.3",
-    "@tailwindcss/postcss": "4.3.3",
-    "postcss": "8.5.1",
-    "tsx": "4.19.2",
     "eslint": "9.19.0",
     "eslint-config-next": "15.5.21",
-    "@eslint/eslintrc": "3.2.0"
+    "postcss": "8.5.1",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3"
   }
 }

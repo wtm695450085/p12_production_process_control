@@ -16,6 +16,7 @@ import {
 } from "@/lib/calculations";
 import { StatusDot } from "@/components/StatusDot";
 import type { OrderStatus, Product } from "@/lib/types";
+import { useT } from "@/lib/use-t";
 
 type SortKey = "name" | "cavities" | "cycleTimeS" | "priceZl" | "unitCost" | "markupPct" | "marginPerMachineHour";
 
@@ -36,6 +37,7 @@ function productStatus(product: Product): OrderStatus {
 }
 
 export function ProduktyScreen() {
+  const t = useT();
   const setSelectedProduct = useDemoStore((s) => s.setSelectedProduct);
   const applyToAll = useDemoStore((s) => s.applyToAllProducts);
   const setApplyToAll = useDemoStore((s) => s.setApplyToAllProducts);
@@ -139,7 +141,7 @@ export function ProduktyScreen() {
             onClick={() => setApplyToAll(false)}
             className="rounded-sm border border-current px-2.5 py-1 text-[11.5px] font-semibold"
           >
-            Wyczyść
+            {t("Wyczyść")}
           </button>
         </div>
       )}
@@ -166,7 +168,7 @@ export function ProduktyScreen() {
                 </th>
               ))}
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-(--color-ink-faint)">
-                Materiał główny
+                {t("Materiał główny")}
               </th>
             </tr>
           </thead>

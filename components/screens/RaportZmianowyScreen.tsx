@@ -4,6 +4,7 @@ import { useDemoStore } from "@/store/useDemoStore";
 import { productionOrders, operators } from "@/lib/seed-data";
 import { getProduct, hourlyOutput, formatNumber, formatPercent } from "@/lib/calculations";
 import type { WorkMode } from "@/lib/types";
+import { useT } from "@/lib/use-t";
 
 const WORK_MODES: { id: WorkMode; label: string }[] = [
   { id: "produkcja", label: "Praca ciągła" },
@@ -12,6 +13,7 @@ const WORK_MODES: { id: WorkMode; label: string }[] = [
 ];
 
 export function RaportZmianowyScreen() {
+  const t = useT();
   const activeOrderId = useDemoStore((s) => s.activeReportOrderId);
   const setActiveOrderId = useDemoStore((s) => s.setActiveReportOrderId);
   const shiftForms = useDemoStore((s) => s.shiftForms);
@@ -180,7 +182,7 @@ export function RaportZmianowyScreen() {
           onClick={() => submitShiftReport(order.id)}
           className="h-16 w-full rounded-sm bg-(--color-navy) text-[18px] font-bold text-white transition-colors hover:bg-(--color-navy-dark)"
         >
-          Zatwierdź raport zmiany
+          {t("Zatwierdź raport zmiany")}
         </button>
 
         {lastSubmitConfirmation && (
@@ -210,7 +212,7 @@ export function RaportZmianowyScreen() {
           </div>
           <div className="flex flex-col gap-1 border-t border-(--color-border) pt-3 text-[13px]">
             <div className="flex items-center justify-between">
-              <span className="text-(--color-ink-soft)">Brakowość narastająco</span>
+              <span className="text-(--color-ink-soft)">{t("Brakowość narastająco")}</span>
               <span className="tabular font-semibold">{formatPercent(scrapSoFar)}</span>
             </div>
             <div className="flex items-center justify-between">
@@ -218,11 +220,11 @@ export function RaportZmianowyScreen() {
               <span className="tabular font-semibold">{formatNumber(progress.producedBad, 0)} szt.</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-(--color-ink-soft)">Pozostało do zrobienia</span>
+              <span className="text-(--color-ink-soft)">{t("Pozostało do zrobienia")}</span>
               <span className="tabular font-semibold">{formatNumber(remaining, 0)} szt.</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-(--color-ink-soft)">Szac. czas do zakończenia</span>
+              <span className="text-(--color-ink-soft)">{t("Szac. czas do zakończenia")}</span>
               <span className="tabular font-semibold">{formatNumber(etaHours, 1)} h</span>
             </div>
           </div>

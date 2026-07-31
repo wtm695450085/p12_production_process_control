@@ -1,16 +1,17 @@
-# Controlling produkcji — demo dla wtryskowni
+# P12 — demonstrator sterowania produkcją dla wtryskowni
 
-Demo sprzedażowe systemu klasy MES/controlling produkcji dla producenta
-akcesoriów dla zwierząt (wtryskownia tworzyw sztucznych). Pokazuje na
-sześciu realnych produktach i trzech zakończonych zleceniach, że koszt
-rzeczywisty potrafi znacząco odbiegać od kalkulacji (materiał, cykl,
-brakowość, przezbrojenie), że produkt uznawany za rentowny może w
-rzeczywistości przynosić stratę, oraz że ranking rentowności portfela
-odwraca się, gdy marżę procentową zastąpić marżą na maszynogodzinę.
+Demo sprzedażowe dziewięciomodułowego systemu zarządzania produkcją dla
+wtryskowni tworzyw sztucznych. Jest oparte na firmowych dokumentach i ich
+widocznych trasach: od karty produktu i zamówienia, przez plan, formę,
+technologię, logistykę, magazyn i raport zmianowy, aż do rzeczywistego
+kosztu i analityki. Główna historia pokazuje, jak raport z hali zamyka
+pętlę kosztową i oznacza wcześniejszą kalkulację jako nieaktualną.
 Świadomie **nie zawiera**: bazy danych, backendu, API, logowania, testów
 jednostkowych (poza skryptem weryfikującym formuły) ani obsługi przypadków
 spoza danych seed — to narzędzie do jednej, 4-minutowej rozmowy sprzedażowej
-(`SCENARIUSZ.md`), a nie produkt. Pełna lista świadomych uproszczeń: `TODO.md`.
+(`SCENARIUSZ.md`), a nie produkt produkcyjny. Cały stan żyje w pamięci
+przeglądarki i wraca do kontrolowanego początku po „Reset demo”.
+Pełna lista świadomych uproszczeń: `TODO.md`.
 
 ## Uruchomienie lokalnie
 
@@ -19,7 +20,8 @@ npm install
 npm run dev
 ```
 
-Aplikacja wystartuje na `http://localhost:8507`. Skrypt weryfikujący formuły
+Aplikacja wystartuje na `http://localhost:8507`. Klawisze `0`–`9`
+przełączają moduły, a `M` otwiera Mapę systemu. Skrypt weryfikujący formuły
 kalkulacyjne (sekcja 4 specyfikacji) można uruchomić osobno:
 
 ```bash
@@ -58,3 +60,12 @@ jako czysty HTML/CSS/JS — bez potrzeby uruchamiania Node.js w produkcji.
 Alternatywnie, bez nginx, katalog `out/` można wystawić dowolnym serwerem
 plików statycznych (np. `npx serve out -l 8507`) — aplikacja nie ma żadnych
 zależności server-side.
+
+## Języki
+
+Interfejs działa po polsku i po angielsku. Przełącznik `PL / EN` znajduje się w
+pasku górnym obok selektora użytkownika; zmiana jest natychmiastowa i przeżywa
+`Reset demo`. Tłumaczenia trzyma `lib/i18n.ts` (słownik PL → EN, kluczem jest
+polski tekst źródłowy) oraz warianty `pick(lang, …)` w `lib/tkw.ts` i
+`lib/tkw-sources.ts`, gdzie zdania składane są z liczb. Separator dziesiętny
+idzie za językiem; walutą pozostaje złoty.

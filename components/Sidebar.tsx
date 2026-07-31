@@ -1,52 +1,38 @@
 "use client";
 
-import { Boxes, Calculator, ClipboardList, ReceiptText, TrendingUp } from "lucide-react";
-import { useDemoStore, type ScreenId } from "@/store/useDemoStore";
+import { Boxes, Calculator, ClipboardList, Factory, Map, Package, ScrollText, Settings, ShieldCheck, TrendingUp, Warehouse } from "lucide-react";
+import { moduleConfigs, moduleOrder } from "@/lib/module-config";
+import { useDemoStore } from "@/store/useDemoStore";
+import { useT } from "@/lib/use-t";
 
-const NAV_ITEMS: { id: ScreenId; label: string; icon: typeof Boxes }[] = [
-  { id: 1, label: "Produkty", icon: Boxes },
-  { id: 2, label: "Kalkulacja", icon: Calculator },
-  { id: 3, label: "Raport zmianowy", icon: ClipboardList },
-  { id: 4, label: "Rozliczenie produkcji", icon: ReceiptText },
-  { id: 5, label: "Rentowność", icon: TrendingUp },
-];
+const icons = { 0: Map, 1: Boxes, 2: ScrollText, 3: ClipboardList, 4: Factory, 5: Settings, 6: Calculator, 7: Package, 8: Warehouse, 9: TrendingUp, 10: ShieldCheck };
 
 export function Sidebar() {
-  const currentScreen = useDemoStore((s) => s.currentScreen);
-  const setScreen = useDemoStore((s) => s.setScreen);
-
-  return (
-    <nav className="flex w-56 shrink-0 flex-col border-r border-(--color-border) bg-(--color-navy) text-white">
-      <div className="border-b border-white/10 px-4 py-4">
-        <div className="text-[13px] font-semibold tracking-wide text-white">CONTROLLING PRODUKCJI</div>
-        <div className="text-[11px] text-white/50">wtryskownia · demo</div>
-      </div>
-      <ul className="flex flex-col gap-0.5 p-2">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const active = currentScreen === item.id;
-          return (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => setScreen(item.id)}
-                className={`flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-left text-[13.5px] transition-colors ${
-                  active
-                    ? "bg-(--color-steel) text-white font-medium"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon size={16} strokeWidth={2} className="shrink-0" />
-                <span className="flex-1">{item.label}</span>
-                <span className="tabular text-[11px] text-white/35">{item.id}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="mt-auto border-t border-white/10 px-4 py-3 text-[11px] leading-snug text-white/40">
-        Skróty klawiszowe 1–5 przełączają ekrany.
-      </div>
-    </nav>
-  );
+  const t = useT();
+  const current = useDemoStore((s) => s.currentModule);
+  const setModule = useDemoStore((s) => s.setModule);
+  const counts = useDemoStore((s) => s.inboxCounts);
+  let lastGroup = "";
+  return <nav className="flex w-64 shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-(--color-navy) text-white">
+    <div className="border-b border-white/10 px-4 py-4"><div className="text-[13px] font-bold tracking-wide">{t("P12 · STEROWANIE PRODUKCJĄ")}</div><div className="text-[10.5px] text-white/45">{t("obieg dokumentów · demo")}</div></div>
+    <div className="p-2">
+      {moduleOrder.map((id) => {
+        const config = id === 0 ? null : moduleConfigs[id];
+        const group = id === 0 ? "" : config!.group;
+        const showGroup = group && group !== lastGroup;
+        if (group) lastGroup = group;
+        const Icon = icons[id];
+        const count = id === 0 ? 0 : counts[id] ?? 0;
+        return <div key={id}>
+          {id === 1 && <div className="my-2 border-t border-white/10" />}
+          {showGroup && <div className="px-3 pb-1 pt-3 text-[9.5px] font-bold tracking-[0.14em] text-white/35">{t(group)}</div>}
+          <button onClick={() => setModule(id)} className={`relative flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-[12.5px] ${current === id ? "bg-(--color-steel) font-semibold text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+            <Icon size={15} /><span className="w-4 font-mono text-[11px] text-white/45">{id}</span><span className="flex-1">{id === 0 ? t("Mapa systemu") : t(config!.name)}</span>
+            {count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-(--color-status-red) px-1 text-[10px] font-bold text-white">{count}</span>}
+          </button>
+        </div>;
+      })}
+    </div>
+    <div className="mt-auto border-t border-white/10 p-2"><button onClick={() => setModule(10)} className={`flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-[12px] ${current===10?"bg-(--color-steel) text-white":"text-white/70 hover:bg-white/10"}`}><ShieldCheck size={15}/><span className="font-mono text-[11px] text-white/45">A</span><span>{t("Zarządzanie dostępem")}</span></button><div className="px-3 pt-2 text-[10px] text-white/35">{t("Klawisze 0–9 · M mapa · A dostęp")}</div></div>
+  </nav>;
 }

@@ -1,0 +1,136 @@
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p12-production-process-control-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  APP_PORT: '8507'
+  SERVICE_NAME: p12-production-process-control.service
+
+jobs:
+  ci:
+    name: Verify and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify calculations
+        run: npm run verify
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Check static export output
+        run: |
+          test -f out/index.html
+          echo "Wyeksportowano $(find out -type f | wc -l) plikow."
+
+      - name: Smoke test static site
+        run: |
+          npx --no-install serve out -l ${{ env.APP_PORT }} -s &
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:${{ env.APP_PORT }}/" > /dev/null; then
+              echo "Serwis odpowiada na porcie ${{ env.APP_PORT }}."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Serwis nie wystartowal na porcie ${{ env.APP_PORT }}."
+          exit 1
+
+      - name: Upload static export
+        uses: actions/upload-artifact@v4
+        with:
+          name: out-${{ github.sha }}
+          path: out/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to VPS
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - name: Download static export
+        uses: actions/download-artifact@v4
+        with:
+          name: out-${{ github.sha }}
+          path: out/
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [ -n "$SSH_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Synchronize static export
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/srv/mlops/apps/p12_production_process_control' }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH/out'"
+          rsync --recursive --links --perms --times --no-owner --no-group --compress --delete \
+            --rsh "ssh -p $SSH_PORT" \
+            out/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/out/"
+
+      - name: Restart service
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "systemctl restart ${{ env.SERVICE_NAME }} && systemctl is-active ${{ env.SERVICE_NAME }}"
+
+      - name: Health check
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent "http://$SSH_HOST:${{ env.APP_PORT }}/" > /dev/null; then
+              echo "Aplikacja dziala: http://$SSH_HOST:${{ env.APP_PORT }}"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Brak odpowiedzi z http://$SSH_HOST:${{ env.APP_PORT }}"
+          exit 1

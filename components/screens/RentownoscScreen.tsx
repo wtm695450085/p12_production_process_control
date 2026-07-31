@@ -3,11 +3,13 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { products } from "@/lib/seed-data";
 import { computeProductEconomics, formatNumber, formatPercent } from "@/lib/calculations";
+import { useT } from "@/lib/use-t";
 
 const ROW_H = 46;
 const HIGHLIGHT_IDS = new Set(["P-104", "P-101"]);
 
 export function RentownoscScreen() {
+  const t = useT();
   const rows = products.map((p) => {
     const econ = computeProductEconomics(p);
     return { product: p, markupPct: econ.markupPct, marginH: econ.marginPerMachineHour };
@@ -70,7 +72,7 @@ export function RentownoscScreen() {
 
         <div>
           <h2 className="mb-3 text-right text-[13px] font-semibold text-(--color-ink)">
-            Ranking wg marży na maszynogodzinę
+            {t("Ranking wg marży na maszynogodzinę")}
           </h2>
           <div style={{ height }} className="relative">
             {byMarginH.map((r, i) => (

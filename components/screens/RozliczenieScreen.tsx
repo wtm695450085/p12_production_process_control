@@ -7,6 +7,7 @@ import { computeOrderSettlement, formatCurrency, formatNumber, formatPercent } f
 import { StatusDot } from "@/components/StatusDot";
 import { WaterfallChart } from "@/components/WaterfallChart";
 import type { OrderStatus } from "@/lib/types";
+import { useT } from "@/lib/use-t";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   zielony: "ZIELONY",
@@ -17,6 +18,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 const ANNUAL_RUNS = 12;
 
 export function RozliczenieScreen() {
+  const t = useT();
   const selectedOrderId = useDemoStore((s) => s.selectedOrderId);
   const setSelectedOrder = useDemoStore((s) => s.setSelectedOrder);
   const revealed = useDemoStore((s) => s.suggestedPriceRevealed);
@@ -41,7 +43,7 @@ export function RozliczenieScreen() {
     <div className="grid grid-cols-[260px_1fr] gap-0">
       <aside className="border-r border-(--color-border) bg-(--color-card)">
         <div className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-(--color-ink-faint)">
-          Zakończone zlecenia
+          {t("Zakończone zlecenia")}
         </div>
         <ul className="flex flex-col gap-0.5 px-2 pb-4">
           {productionOrders.map((o) => {
@@ -128,7 +130,7 @@ export function RozliczenieScreen() {
         <div className="rounded-sm border border-(--color-border) bg-(--color-card) p-5">
           <div className="mb-1 flex items-center justify-between">
             <h2 className="text-[13px] font-semibold text-(--color-ink)">
-              Rozkład odchylenia: kalkulacja → rzeczywistość
+              {t("Rozkład odchylenia: kalkulacja → rzeczywistość")}
             </h2>
             <span className="tabular text-[12.5px] font-semibold" style={{ color: "var(--color-status-red)" }}>
               odchylenie {deviationPct >= 0 ? "+" : ""}
@@ -194,7 +196,7 @@ export function RozliczenieScreen() {
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-[13px] text-(--color-ink-soft)">Różnica:</span>
+                  <span className="text-[13px] text-(--color-ink-soft)">{t("Różnica:")}</span>
                   <span className="tabular text-[26px] font-bold leading-none text-(--color-navy)">
                     {formatCurrency(Math.abs(annualDiff), 0)}
                   </span>
@@ -266,6 +268,7 @@ function RefreshPricePanel({
   revealed: boolean;
   onReveal: () => void;
 }) {
+  const t = useT();
   const pctDiff = ((suggestedPrice - currentPrice) / currentPrice) * 100;
   return (
     <div className="flex w-64 flex-col justify-between gap-3 rounded-sm border border-(--color-border) bg-(--color-card) p-5">
@@ -285,7 +288,7 @@ function RefreshPricePanel({
           </>
         ) : (
           <div className="mt-1.5 text-[12.5px] text-(--color-ink-soft)">
-            Przelicz cenę tak, aby odtworzyć założony narzut na bazie kosztu rzeczywistego.
+            {t("Przelicz cenę tak, aby odtworzyć założony narzut na bazie kosztu rzeczywistego.")}
           </div>
         )}
       </div>
@@ -295,7 +298,7 @@ function RefreshPricePanel({
         className="flex items-center justify-center gap-2 rounded-sm bg-(--color-navy) px-3 py-2.5 text-[12.5px] font-medium text-white transition-colors hover:bg-(--color-navy-dark)"
       >
         <RefreshCw size={14} />
-        Odśwież kalkulację na podstawie danych rzeczywistych
+        {t("Odśwież kalkulację na podstawie danych rzeczywistych")}
       </button>
       <div className="text-[10.5px] text-(--color-ink-faint)">zlecenie {orderId}</div>
     </div>

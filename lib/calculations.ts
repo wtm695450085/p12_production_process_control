@@ -9,6 +9,7 @@ import type {
   OrderStatus,
   WaterfallStep,
 } from "./types";
+import { localeOf, type Lang } from "./i18n";
 
 export function getMaterial(id: string) {
   const m = materials.find((x) => x.id === id);
@@ -198,7 +199,11 @@ export function computeOrderSettlement(order: ProductionOrder): OrderSettlement 
     impact: setupImpact,
   });
 
-  const suggestedNewPrice = actualUnitCost * (1 + calc.markupPct / 100);
+  // The commercial recommendation restores the markup shown to the user
+  // (one decimal place), so the displayed percentage and price reconcile
+  // exactly when checked with a calculator.
+  const displayedMarkupPct = Math.round(calc.markupPct * 10) / 10;
+  const suggestedNewPrice = actualUnitCost * (1 + displayedMarkupPct / 100);
 
   return {
     order,
@@ -216,17 +221,21 @@ export function computeOrderSettlement(order: ProductionOrder): OrderSettlement 
   };
 }
 
-export function formatNumber(value: number, decimals: number): string {
-  return new Intl.NumberFormat("pl-PL", {
+/**
+ * Separator dziesiętny idzie za językiem interfejsu (0,8406 zł wobec
+ * 0.8406 zł); walutą pozostaje złoty, bo zakład rozlicza się w PLN.
+ */
+export function formatNumber(value: number, decimals: number, lang: Lang = "pl"): string {
+  return value.toLocaleString(localeOf(lang), {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(value);
+  });
 }
 
-export function formatCurrency(value: number, decimals: number): string {
-  return `${formatNumber(value, decimals)} zł`;
+export function formatCurrency(value: number, decimals: number, lang: Lang = "pl"): string {
+  return `${formatNumber(value, decimals, lang)} zł`;
 }
 
-export function formatPercent(value: number, decimals = 1): string {
-  return `${formatNumber(value, decimals)}%`;
+export function formatPercent(value: number, decimals = 1, lang: Lang = "pl"): string {
+  return `${formatNumber(value, decimals, lang)}%`;
 }
