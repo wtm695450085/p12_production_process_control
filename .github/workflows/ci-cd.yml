@@ -23,10 +23,27 @@ jobs:
     name: Verify and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      deploy_ready: ${{ steps.secret_check.outputs.deploy_ready }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check deployment secrets
+        id: secret_check
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          if [ -n "$SSH_PRIVATE_KEY" ] && [ -n "$SSH_HOST" ] && [ -n "$SSH_USER" ]; then
+            echo "deploy_ready=true" >> "$GITHUB_OUTPUT"
+            echo "Sekrety SSH obecne — deploy zostanie uruchomiony."
+          else
+            echo "deploy_ready=false" >> "$GITHUB_OUTPUT"
+            echo "Brak sekretow SSH (SSH_PRIVATE_KEY / SSH_HOST / SSH_USER) — deploy pominiety."
+          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -50,16 +67,24 @@ jobs:
 
       - name: Smoke test static site
         run: |
-          npx --no-install serve out -l ${{ env.APP_PORT }} -s &
+          npx --no-install serve out -l ${{ env.APP_PORT }} -s > serve.log 2>&1 &
+          serve_pid=$!
+          status=1
           for attempt in {1..30}; do
             if curl --fail --silent "http://127.0.0.1:${{ env.APP_PORT }}/" > /dev/null; then
               echo "Serwis odpowiada na porcie ${{ env.APP_PORT }}."
-              exit 0
+              status=0
+              break
             fi
             sleep 2
           done
-          echo "Serwis nie wystartowal na porcie ${{ env.APP_PORT }}."
-          exit 1
+          if [ "$status" -ne 0 ]; then
+            echo "Serwis nie wystartowal na porcie ${{ env.APP_PORT }}."
+            cat serve.log || true
+          fi
+          kill "$serve_pid" 2>/dev/null || true
+          rm -f serve.log
+          exit "$status"
 
       - name: Upload static export
         uses: actions/upload-artifact@v4
@@ -70,7 +95,10 @@ jobs:
 
   deploy:
     name: Deploy to VPS
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    if: |
+      needs.ci.outputs.deploy_ready == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' && github.ref == 'refs/heads/master'))
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 15
